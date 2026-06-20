@@ -1,24 +1,37 @@
 import telebot
 import os
-from flask import Flask
+from flask import Flask, request
 from threading import Thread
 
-# تنظیمات ربات
-BOT_TOKEN = "8940690033:AAHpu5bUlNLE9-Qsk692ViEHQxCvgMcwT30"
-bot = telebot.TeleBot(BOT_TOKEN)
+# TOKEN از Environment Variable گرفته می‌شود (نه داخل کد!)
+BOT_TOKEN = os.environ.get("8940690033:AAHpu5bUlNLE9-Qsk692ViEHQxCvgMcwT30")
 
-# بخش وب‌سرور برای راضی کردن Render
+bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
+
+# صفحه تست وب
 @app.route('/')
 def home():
     return "Bot is running!"
 
-def run_web():
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+# webhook route
+@app.route(f"/{BOT_TOKEN}", methods=["POST"])
+def webhook():
+    json_str = request.stream.read().decode("utf-8")
+    update = telebot.types.Update.de_json(json_str)
+    bot.process_new_updates([update])
+    return "OK", 200
 
-# اجرای همزمان ربات و وب‌سرور
+# اجرای Flask
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
+# استارت برنامه
 if __name__ == "__main__":
-    t = Thread(target=run_web)
-    t.start()
+    bot.remove_webhook()
+    bot.set_webhook(url=f"https://gold-bot-gtun.onrender.com/{BOT_TOKEN}")
+
     print("BOT AND WEB SERVER RUNNING")
-    bot.polling(none_stop=True, interval=0)
+
+    Thread(target=run_web).start()
