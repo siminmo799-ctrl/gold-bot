@@ -4,7 +4,7 @@ from flask import Flask
 from threading import Thread
 
 # تنظیمات ربات
-BOT_TOKEN = "8940690033:AAExD0hcXejHxURX7aoz-WCXFIOxjy2WM7M"
+BOT_TOKEN = "8940690033:AAHpu5bUlNLE9-Qsk692ViEHQxCvgMcwT30"
 bot = telebot.TeleBot(BOT_TOKEN)
 
 # بخش وب‌سرور برای راضی کردن Render
