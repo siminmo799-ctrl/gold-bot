@@ -1,16 +1,24 @@
 import telebot
+import os
+from flask import Flask
+from threading import Thread
 
-# توکن خود را در اینجا قرار دهید
-BOT_TOKEN = "8940690033:AAExD0hcXejHxURX7aoz-WCXFIOxjy2WM7M" 
-
+# تنظیمات ربات
+BOT_TOKEN = "8940690033:AAExD0hcXejHxURX7aoz-WCXFIOxjy2WM7M"
 bot = telebot.TeleBot(BOT_TOKEN)
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    bot.reply_to(message, "ربات آنلاین شد ✅")
+# بخش وب‌سرور برای راضی کردن Render
+app = Flask(__name__)
+@app.route('/')
+def home():
+    return "Bot is running!"
 
-# این بخش برای جلوگیری از خطاهای تداخلی و اجرای پایدار است
+def run_web():
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+
+# اجرای همزمان ربات و وب‌سرور
 if __name__ == "__main__":
-    print("BOT RUNNING")
+    t = Thread(target=run_web)
+    t.start()
+    print("BOT AND WEB SERVER RUNNING")
     bot.polling(none_stop=True, interval=0)
-
